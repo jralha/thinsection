@@ -40,7 +40,7 @@ val_data_gen = gens[1]
 
 if CONTINUE == False:
     FIRST_EPOCH = 0
-    model = define_model.vgg_model(len(class_names),IMG_HEIGHT,IMG_WIDTH,IMG_CHAN)
+    model = define_model.resnet_model(len(class_names),shape)
 elif CONTINUE == True:
     FIRST_EPOCH = X #User defined interger
     model = tf.keras.models.load_model(checks+'best.hdf5')
