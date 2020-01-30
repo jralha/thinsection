@@ -1,7 +1,7 @@
 #%% Imports
 import os
 import sys
-os.environ['CUDA_VISIBLE_DEVICES'] = ''
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 import tensorflow as tf
 import glob
 import numpy as np
@@ -55,7 +55,7 @@ model.compile(
 #%%Callbacks
 #########################################
 checks = "checkpoints\\"
-filepath_best=checks+"best.hdf5"
+filepath_best=checks+"best-{epoch:04d}.hdf5"
 ckp_best = tf.keras.callbacks.ModelCheckpoint(filepath_best,
 monitor='val_accuracy',
 verbose=1,
@@ -64,17 +64,18 @@ mode='max',
 save_weights_only=False,
 save_freq='epoch')
 
-filepath_latest=checks+"epoch-{epoch:04d}.hdf5"
-ckp_last = tf.keras.callbacks.ModelCheckpoint(filepath_latest,
-monitor='val_accuracy',
-verbose=1,
-save_best_only=False,
-mode='auto',
-save_weights_only=False,
-save_freq='epoch'
-)
+# filepath_latest=checks+"epoch-{epoch:04d}.hdf5"
+# ckp_last = tf.keras.callbacks.ModelCheckpoint(filepath_latest,
+# monitor='val_accuracy',
+# verbose=1,
+# save_best_only=False,
+# mode='auto',
+# save_weights_only=False,
+# save_freq='epoch'
+# )
 
-callbacks_list = [ckp_best,ckp_last]
+# callbacks_list = [ckp_best,ckp_last]
+callbacks_list = [ckp_best]
 
 #%%Train or resume training
 #########################################

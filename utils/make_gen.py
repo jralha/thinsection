@@ -32,7 +32,7 @@ def single_folder(data_dir,IMG_HEIGHT,IMG_WIDTH,BATCH_SIZE,class_names,save_aug_
         target_size=(IMG_HEIGHT, IMG_WIDTH),
         classes = class_names,
         subset ='training',
-        save_to_dir='dataset\\aug\\train'
+        save_to_dir=aug_train
         )
 
     val_data_gen = image_generator.flow_from_directory(
@@ -42,7 +42,7 @@ def single_folder(data_dir,IMG_HEIGHT,IMG_WIDTH,BATCH_SIZE,class_names,save_aug_
         target_size=(IMG_HEIGHT, IMG_WIDTH),
         classes = class_names,
         subset ='validation',
-        save_to_dir='dataset\\aug\\val'
+        save_to_dir=aug_val
         )
 
     return train_data_gen, val_data_gen
