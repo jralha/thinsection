@@ -1,9 +1,10 @@
 #%% Imports
 import os
 import sys
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+# os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 import tensorflow as tf
 import glob
+import random
 import numpy as np
 import datetime
 from utils import make_gen
@@ -21,9 +22,9 @@ class_names = list(np.unique(classes))
 
 #%% Training parameters.
 ########################################
+RUN_NAME = 'GPU-RESNET-' #no spaces or dots
 CONTINUE = False
-BUFFER_SIZE = 400
-BATCH_SIZE = 10
+BATCH_SIZE = 1
 IMG_WIDTH = 256
 IMG_HEIGHT = 256
 IMG_CHAN = 3
@@ -34,19 +35,33 @@ shape = (IMG_HEIGHT,IMG_WIDTH,IMG_CHAN)
 
 #%%Data generator and model
 #########################################
-gens = make_gen.single_folder(data_dir=data_dir,IMG_HEIGHT=IMG_HEIGHT,IMG_WIDTH=IMG_WIDTH,BATCH_SIZE=BATCH_SIZE,class_names=class_names)
-train_data_gen = gens[0]
-val_data_gen = gens[1]
+kfold=1
+train_data_gen=[]
+val_data_gen=[]
+seeds=[]
+for fold in range(kfold):
+    seed = random.randint(1,999)
+    seeds.append(seed)
+    gens = make_gen.single_folder(data_dir=data_dir,IMG_HEIGHT=IMG_HEIGHT,IMG_WIDTH=IMG_WIDTH,BATCH_SIZE=BATCH_SIZE,class_names=class_names, seed=seed )
+    train_data_gen.append(gens[0])
+    val_data_gen.append(gens[1])
 
 if CONTINUE == False:
-    FIRST_EPOCH = 0
+    FIRST_EPOCH = 1
+    # model = define_model.cnn_shallow(len(class_names),shape)
     model = define_model.resnet_model(len(class_names),shape)
 elif CONTINUE == True:
-    FIRST_EPOCH = X #User defined interger
-    model = tf.keras.models.load_model(checks+'best.hdf5')
+    modelfile = 'best-0677.hdf5'
+    FIRST_EPOCH = int(modelfile.split('.')[0].split('-')[-1])
+    model = tf.keras.models.load_model(checks+modelfile)
+else:
+    print('Either start or continue training')
+    sys.exit()
 
 model.compile(
-    optimizer='adam',
+    # optimizer='rmsprop',
+    # optimizer=tf.keras.optimizers.Adam(),
+    optimizer=tf.keras.optimizers.SGD(lr=0.01, momentum=0.9, decay=0.01, nesterov=True),
     loss=tf.keras.losses.CategoricalCrossentropy(),
     metrics=["accuracy"]
     )
@@ -54,39 +69,44 @@ model.compile(
 
 #%%Callbacks
 #########################################
-checks = "checkpoints\\"
-filepath_best=checks+"best-{epoch:04d}.hdf5"
-ckp_best = tf.keras.callbacks.ModelCheckpoint(filepath_best,
-monitor='val_accuracy',
-verbose=1,
-save_best_only=True,
-mode='max',
-save_weights_only=False,
-save_freq='epoch')
+for fold in range(kfold):
+    if kfold > 1:
+        filepath_best=checks+RUN_NAME+"{epoch}-{val_accuracy}-fold-"+str(fold+1)+"-seed-"+str(seeds[fold])+".hdf5"
+    elif kfold == 1:
+        filepath_best=checks+RUN_NAME+"{epoch}-{val_accuracy}-seed-"+str(seeds[fold])+".hdf5"
 
-# filepath_latest=checks+"epoch-{epoch:04d}.hdf5"
-# ckp_last = tf.keras.callbacks.ModelCheckpoint(filepath_latest,
-# monitor='val_accuracy',
-# verbose=1,
-# save_best_only=False,
-# mode='auto',
-# save_weights_only=False,
-# save_freq='epoch'
-# )
+    ckp_best=tf.keras.callbacks.ModelCheckpoint(filepath_best,
+        monitor='val_accuracy',
+        verbose=1,
+        save_best_only=True,
+        mode='max',
+        save_weights_only=False,
+        save_freq='epoch'
+        )
 
-# callbacks_list = [ckp_best,ckp_last]
-callbacks_list = [ckp_best]
+    log_dir="logs\\"
+    # board=tf.keras.callbacks.TensorBoard(log_dir=log_dir,
+    #     histogram_freq=1,
+    #     write_graph=True
+    #     )
 
-#%%Train or resume training
-#########################################
-model.fit_generator(
-    generator=train_data_gen,
-    steps_per_epoch=STEPS_PER_EPOCH,
-    epochs=epochs,
-    callbacks=callbacks_list,
-    validation_data = val_data_gen,
-    validation_steps = STEPS_PER_EPOCH,
-    initial_epoch = FIRST_EPOCH
-    )
+    logfile=filepath_best.split('.')[0].split('\\')[-1]
+    csv_log=tf.keras.callbacks.CSVLogger(filename=log_dir+logfile)
+
+    callbacks_list = [ckp_best,csv_log]
+
+    #%%Train or resume training
+    #########################################
+
+    model.fit_generator(
+        generator=train_data_gen[fold],
+        steps_per_epoch=STEPS_PER_EPOCH,
+        epochs=epochs,
+        callbacks=callbacks_list,
+        validation_data=val_data_gen[fold],
+        validation_steps=STEPS_PER_EPOCH,
+        initial_epoch=FIRST_EPOCH
+        )
 
 # %%
+  

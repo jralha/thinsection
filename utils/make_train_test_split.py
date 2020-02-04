@@ -8,7 +8,7 @@ from shutil import copyfile
 from sklearn.model_selection import train_test_split
 
 #%%
-def split_dataset(datadir,test_size=0.2,ext='jpg',outdir=None):
+def split_dataset(datadir,test_size=0.2,ext='jpg',outdir=None,random_state=None):
 
     data_dir = os.path.abspath(datadir)
     if outdir == None:
@@ -27,7 +27,7 @@ def split_dataset(datadir,test_size=0.2,ext='jpg',outdir=None):
         classes,
         test_size=test_size,
         stratify=classes,
-        random_state=123
+        random_state=random_state
         )
 
     train_folder = out_dir+'\\train\\'
