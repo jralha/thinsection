@@ -25,6 +25,7 @@ parser.add_argument('--epoch_count', type=int, default=1500)
 parser.add_argument('--init_epoch', type=int, default=0)
 parser.add_argument('--model_file', type=str, default=None)
 parser.add_argument('--k_fold', type=int, default=1)
+parser.add_argument('--optimizer', type=str, default='adam')
 
 parser.add_argument('--run_name', type=str, required=True)
 parser.add_argument('--model', type=str, default=None)
@@ -85,9 +86,7 @@ else:
     sys.exit()
 
 model.compile(
-    # optimizer='rmsprop',
-    # optimizer=tf.keras.optimizers.Adam(),
-    optimizer=tf.keras.optimizers.SGD(lr=0.01, momentum=0.9, decay=0.01, nesterov=True),
+    optimizer=args.optimizer,
     loss=tf.keras.losses.CategoricalCrossentropy(),
     metrics=["accuracy"]
     )
