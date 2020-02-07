@@ -13,10 +13,10 @@ def single_folder(data_dir,IMG_HEIGHT,IMG_WIDTH,BATCH_SIZE,class_names,save_aug_
         horizontal_flip=True,
         vertical_flip=True,
         validation_split=0.2,
-        width_shift_range = 0.1,
-        height_shift_range = 0.1,
-        zoom_range = 0.1,
-        rotation_range = 10
+        # width_shift_range = 0.1,
+        # height_shift_range = 0.1,
+        # zoom_range = 0.1,
+        # rotation_range = 10
         )
 
     if save_aug_imgs != None:

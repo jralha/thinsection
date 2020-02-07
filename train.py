@@ -1,7 +1,7 @@
 #%% Imports
 import os
 import sys
-# os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 import tensorflow as tf
 import glob
 import random
@@ -24,7 +24,7 @@ class_names = list(np.unique(classes))
 ########################################
 RUN_NAME = 'GPU-RESNET-' #no spaces or dots
 CONTINUE = False
-BATCH_SIZE = 1
+BATCH_SIZE = 100
 IMG_WIDTH = 256
 IMG_HEIGHT = 256
 IMG_CHAN = 3
@@ -70,10 +70,11 @@ model.compile(
 #%%Callbacks
 #########################################
 for fold in range(kfold):
+    val_acc = str(round(float('{val_accuracy}'),2))
     if kfold > 1:
-        filepath_best=checks+RUN_NAME+"{epoch}-{val_accuracy}-fold-"+str(fold+1)+"-seed-"+str(seeds[fold])+".hdf5"
+        filepath_best=checks+RUN_NAME+"{epoch}-"+val_acc+"-fold-"+str(fold+1)+"-seed-"+str(seeds[fold])+".hdf5"
     elif kfold == 1:
-        filepath_best=checks+RUN_NAME+"{epoch}-{val_accuracy}-seed-"+str(seeds[fold])+".hdf5"
+        filepath_best=checks+RUN_NAME+"{epoch}-"+val_acc+"-seed-"+str(seeds[fold])+".hdf5"
 
     ckp_best=tf.keras.callbacks.ModelCheckpoint(filepath_best,
         monitor='val_accuracy',
@@ -90,7 +91,7 @@ for fold in range(kfold):
     #     write_graph=True
     #     )
 
-    logfile=filepath_best.split('.')[0].split('\\')[-1]
+    logfile=RUN_NAME+'.csv'
     csv_log=tf.keras.callbacks.CSVLogger(filename=log_dir+logfile)
 
     callbacks_list = [ckp_best,csv_log]
