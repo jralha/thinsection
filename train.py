@@ -119,7 +119,13 @@ for fold in range(kfold):
     logfile=RUN_NAME+'.csv'
     csv_log=tf.keras.callbacks.CSVLogger(filename=log_dir+logfile)
 
-    callbacks_list = [ckp_best,csv_log]
+
+    earlystopping=tf.keras.callbacks.EarlyStopping(
+        monitor='val_loss', min_delta=0,patience=10
+    )
+
+
+    callbacks_list = [ckp_best,csv_log,earlystopping]
 
     #%%Train or resume training
     #########################################
