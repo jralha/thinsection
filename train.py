@@ -98,9 +98,9 @@ model.compile(
 for fold in range(kfold):
     val_acc = '{val_accuracy}'
     if kfold > 1:
-        filepath_best=checks+RUN_NAME+"{epoch}-"+val_acc+"-fold-"+str(fold+1)+"-seed-"+str(seeds[fold])+".hdf5"
+        filepath_best=checks+RUN_NAME+"-{epoch}-"+val_acc+"-fold-"+str(fold+1)+"-seed-"+str(seeds[fold])+".hdf5"
     elif kfold == 1:
-        filepath_best=checks+RUN_NAME+"{epoch}-"+val_acc+"-seed-"+str(seeds[fold])+".hdf5"
+        filepath_best=checks+RUN_NAME+"-{epoch}-"+val_acc+"-seed-"+str(seeds[fold])+".hdf5"
 
     ckp_best=tf.keras.callbacks.ModelCheckpoint(filepath_best,
         monitor='val_accuracy',
