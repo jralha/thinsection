@@ -78,7 +78,7 @@ if CONTINUE == False:
         model = define_model.cnn_shallow(len(class_names),shape)
     
 elif CONTINUE == True:
-    modelfile = 'best-0677.hdf5'
+    modelfile = args.model_file
     FIRST_EPOCH = int(modelfile.split('.')[0].split('-')[-1])
     model = tf.keras.models.load_model(checks+modelfile)
 else:
