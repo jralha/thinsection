@@ -125,7 +125,7 @@ for fold in range(kfold):
     )
 
 
-    callbacks_list = [ckp_best,csv_log,earlystopping]
+    callbacks_list = [ckp_best,csv_log]
 
     #%%Train or resume training
     #########################################
