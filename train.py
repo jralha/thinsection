@@ -53,7 +53,7 @@ IMG_CHAN = args.img_chan
 STEPS_PER_EPOCH = np.ceil(image_count/BATCH_SIZE)
 epochs = args.epoch_count
 shape = (IMG_HEIGHT,IMG_WIDTH,IMG_CHAN)
-os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_ids
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 #%%Data generator and model
 #########################################
